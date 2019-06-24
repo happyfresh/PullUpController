@@ -80,7 +80,7 @@ open class PullUpController: UIViewController {
      the target sticky point is skippend and the view is positioned to the next one.
     */
     open var pullUpControllerSkipPointVerticalVelocityThreshold: CGFloat {
-        return 700
+        return 99000
     }
     
     // MARK: - Public properties
