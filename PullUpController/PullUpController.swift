@@ -476,7 +476,7 @@ extension UIViewController {
      - parameter initialStickyPointOffset: The point where the provided `pullUpController`'s view will be initially placed expressed in screen units of the pull up controller coordinate system. If this value is not provided, the `pullUpController`'s view will be initially placed expressed
      - parameter animated: Pass true to animate the adding; otherwise, pass false.
      */
-    open func addPullUpController(_ pullUpController: PullUpController,
+    @objc open func addPullUpController(_ pullUpController: PullUpController,
                                   initialStickyPointOffset: CGFloat,
                                   animated: Bool) {
         assert(!(self is UITableViewController), "It's not possible to attach a PullUpController to a UITableViewController. Check this issue for more information: https://github.com/MarioIannotta/PullUpController/issues/14")
