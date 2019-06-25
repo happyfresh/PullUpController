@@ -118,7 +118,13 @@ open class PullUpController: UIViewController {
         guard let minStickyPointDifference = stickyPointsLessCurrentPosition.min() else { return 0 }
         return stickyPointsLessCurrentPosition.firstIndex(of: minStickyPointDifference) ?? 0
     }
-    
+    private lazy var overlayView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black
+
+        return view
+    }()
+
     // MARK: - Open methods
     
     /**
@@ -140,7 +146,9 @@ open class PullUpController: UIViewController {
      The default implementation of this method does nothing.
      - parameter stickyPoint: The target point, expressed in the pull up controller coordinate system
      */
-    open func pullUpControllerDidDrag(to point: CGFloat) { }
+    open func pullUpControllerDidDrag(to point: CGFloat) {
+        overlayView.alpha = point / overlayView.frame.height * 0.95
+    }
     
     /**
      This method will move the pull up controller's view in order to show the provided visible point.
@@ -227,10 +235,14 @@ open class PullUpController: UIViewController {
             }
         })
     }
-    
+
     // MARK: - Setup
     
     fileprivate func setup(superview: UIView, initialStickyPointOffset: CGFloat) {
+        overlayView.frame = superview.frame
+        overlayView.alpha = initialStickyPointOffset / superview.frame.height * 0.95
+        superview.addSubview(overlayView)
+
         self.initialStickyPointOffset = initialStickyPointOffset
         view.translatesAutoresizingMaskIntoConstraints = false
         superview.addSubview(view)
@@ -464,6 +476,7 @@ open class PullUpController: UIViewController {
             let parentViewHeight = parent?.view.frame.height
             else { return }
         topConstraint?.constant = parentViewHeight
+        overlayView.removeFromSuperview()
     }
     
 }
