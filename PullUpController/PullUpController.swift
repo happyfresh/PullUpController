@@ -78,7 +78,7 @@ open class PullUpController: UIViewController {
     /**
      A CGFloat value that represent the vertical velocity threshold (expressed in points/sec) beyond wich
      the target sticky point is skippend and the view is positioned to the next one.
-    */
+     */
     open var pullUpControllerSkipPointVerticalVelocityThreshold: CGFloat {
         return 99000
     }
@@ -121,10 +121,10 @@ open class PullUpController: UIViewController {
     private lazy var overlayView: UIView = {
         let view = UIView()
         view.backgroundColor = .black
-
+        
         return view
     }()
-
+    
     // MARK: - Open methods
     
     /**
@@ -181,7 +181,7 @@ open class PullUpController: UIViewController {
      This method update the pull up controller's view size according to `pullUpControllerPreferredSize` and `pullUpControllerPreferredLandscapeFrame`.
      If the device is in portrait, the pull up controller's view will be attached to the nearest sticky point after the resize.
      - parameter animated: Pass true to animate the resize; otherwise, pass false.
-    */
+     */
     open func updatePreferredFrameIfNeeded(animated: Bool) {
         guard
             let parentView = parent?.view
@@ -206,7 +206,7 @@ open class PullUpController: UIViewController {
      - parameter duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them.
      - parameter animations: A block object containing the changes to commit to the views.
      - parameter completion: A block object to be executed when the animation sequence ends.
-    */
+     */
     open func pullUpControllerAnimate(action: Action,
                                       withDuration duration: TimeInterval,
                                       animations: @escaping () -> Void,
@@ -235,14 +235,14 @@ open class PullUpController: UIViewController {
             }
         })
     }
-
+    
     // MARK: - Setup
     
     fileprivate func setup(superview: UIView, initialStickyPointOffset: CGFloat) {
         overlayView.frame = superview.frame
         overlayView.alpha = initialStickyPointOffset / superview.frame.height * 0.95
         superview.addSubview(overlayView)
-
+        
         self.initialStickyPointOffset = initialStickyPointOffset
         view.translatesAutoresizingMaskIntoConstraints = false
         superview.addSubview(view)
@@ -414,7 +414,7 @@ open class PullUpController: UIViewController {
                 let lastStickyPoint = pullUpControllerAllStickyPoints.last
                 else {
                     return value
-                }
+            }
             let bounceOffset = allowBounce ? pullUpControllerBounceOffset : 0
             let minValue = parentViewHeight - lastStickyPoint - bounceOffset
             let maxValue = parentViewHeight - firstStickyPoint + bounceOffset
@@ -471,6 +471,14 @@ open class PullUpController: UIViewController {
         bottomConstraint?.constant = parentViewHeight - landscapeFrame.height - landscapeFrame.origin.y
     }
     
+    public func setParentSwipeGestureEnabled(_ isEnabled: Bool) {
+        if let navigationController = self as? UINavigationController {
+            navigationController.interactivePopGestureRecognizer?.isEnabled = isEnabled;
+        } else if let viewController = self as? UIViewController {
+            viewController.navigationController?.interactivePopGestureRecognizer?.isEnabled = isEnabled;
+        }
+    }
+    
     fileprivate func hide() {
         guard
             let parentViewHeight = parent?.view.frame.height
@@ -490,11 +498,12 @@ extension UIViewController {
      - parameter animated: Pass true to animate the adding; otherwise, pass false.
      */
     @objc open func addPullUpController(_ pullUpController: PullUpController,
-                                  initialStickyPointOffset: CGFloat,
-                                  animated: Bool) {
+                                        initialStickyPointOffset: CGFloat,
+                                        animated: Bool) {
         assert(!(self is UITableViewController), "It's not possible to attach a PullUpController to a UITableViewController. Check this issue for more information: https://github.com/MarioIannotta/PullUpController/issues/14")
         addChild(pullUpController)
         pullUpController.setup(superview: view, initialStickyPointOffset: initialStickyPointOffset)
+        pullUpController.setParentSwipeGestureEnabled(false)
         if animated {
             pullUpController.pullUpControllerAnimate(
                 action: .add,
@@ -515,6 +524,7 @@ extension UIViewController {
      */
     open func removePullUpController(_ pullUpController: PullUpController, animated: Bool) {
         pullUpController.hide()
+        pullUpController.setParentSwipeGestureEnabled(true)
         if animated {
             pullUpController.pullUpControllerAnimate(
                 action: .remove,
@@ -557,5 +567,5 @@ extension UIScrollView {
         pullUpController.removeInternalScrollViewPanGestureRecognizer()
         pullUpController.internalScrollView = nil
     }
-
+    
 }
