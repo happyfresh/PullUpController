@@ -112,6 +112,7 @@ open class PullUpController: UIViewController {
     
     private var initialInternalScrollViewContentOffset: CGPoint = .zero
     private var initialStickyPointOffset: CGFloat?
+    private var isDragable: Bool?
     private var currentStickyPointIndex: Int {
         let stickyPointTreshold = (self.parent?.view.frame.height ?? 0) - (topConstraint?.constant ?? 0)
         let stickyPointsLessCurrentPosition = pullUpControllerAllStickyPoints.map { abs($0 - stickyPointTreshold) }
@@ -238,12 +239,13 @@ open class PullUpController: UIViewController {
     
     // MARK: - Setup
     
-    fileprivate func setup(superview: UIView, initialStickyPointOffset: CGFloat) {
+    fileprivate func setup(superview: UIView, initialStickyPointOffset: CGFloat, isDragable: Bool = true) {
         overlayView.frame = superview.frame
         overlayView.alpha = initialStickyPointOffset / superview.frame.height * 0.95
         superview.addSubview(overlayView)
         
         self.initialStickyPointOffset = initialStickyPointOffset
+        self.isDragable = isDragable
         view.translatesAutoresizingMaskIntoConstraints = false
         superview.addSubview(view)
         view.frame = CGRect(origin: CGPoint(x: view.frame.origin.x,
@@ -371,6 +373,7 @@ open class PullUpController: UIViewController {
     
     @objc private func handlePanGestureRecognizer(_ gestureRecognizer: UIPanGestureRecognizer) {
         guard
+            isDragable ?? true,
             isPortrait,
             let topConstraint = topConstraint
             else { return }
@@ -499,10 +502,11 @@ extension UIViewController {
      */
     @objc open func addPullUpController(_ pullUpController: PullUpController,
                                         initialStickyPointOffset: CGFloat,
+                                        isDragable: Bool = true,
                                         animated: Bool) {
         assert(!(self is UITableViewController), "It's not possible to attach a PullUpController to a UITableViewController. Check this issue for more information: https://github.com/MarioIannotta/PullUpController/issues/14")
         addChild(pullUpController)
-        pullUpController.setup(superview: view, initialStickyPointOffset: initialStickyPointOffset)
+        pullUpController.setup(superview: view, initialStickyPointOffset: initialStickyPointOffset, isDragable: isDragable)
         pullUpController.setParentSwipeGestureEnabled(false)
         if animated {
             pullUpController.pullUpControllerAnimate(
